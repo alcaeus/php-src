@@ -14,7 +14,7 @@ function test() {
   var_dump($baz); // Compile error
 }
 
-echo "Start"; // Never executed becuse compile error.
+echo "Start"; // Never executed because compile error.
 test();
 echo "Done"; // Never executed because compile error.
 --EXPECTF--
