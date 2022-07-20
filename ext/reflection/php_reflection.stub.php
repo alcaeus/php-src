@@ -407,6 +407,10 @@ class ReflectionProperty implements Reflector
     /** @tentative-return-type */
     public function isInitialized(?object $object = null): bool {}
 
+    public function hasInitializer(?object $object = null): bool {}
+
+    public function setInitializer(callable $callable, ?object $object = null) {}
+
     /** @tentative-return-type */
     public function isPublic(): bool {}
 

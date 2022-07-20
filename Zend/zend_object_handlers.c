@@ -609,6 +609,7 @@ ZEND_API zval *zend_std_read_property(zend_object *zobj, zend_string *name, int 
 		}
 		if (UNEXPECTED(Z_PROP_FLAG_P(retval) == IS_PROP_UNINIT)) {
 			/* Skip __get() for uninitialized typed properties */
+         // Todo: call object initialiser
 			goto uninit_error;
 		}
 	} else if (EXPECTED(IS_DYNAMIC_PROPERTY_OFFSET(property_offset))) {
