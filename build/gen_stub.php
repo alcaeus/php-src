@@ -23,6 +23,31 @@ const PHP_81_VERSION_ID = 80100;
 const PHP_82_VERSION_ID = 80200;
 const ALL_PHP_VERSION_IDS = [PHP_70_VERSION_ID, PHP_80_VERSION_ID, PHP_81_VERSION_ID, PHP_82_VERSION_ID];
 
+function getClassInfoFromReflection(string $className): ?ClassInfo
+{
+    $reflection = new ReflectionClass($className);
+
+    return new ClassInfo(
+        new Name($className),
+        0,
+        $reflection->isInterface() ? 'interface' : 'class',
+        null,
+        null,
+        false,
+        false,
+        [],
+        false,
+        [],
+        [],
+        [],
+        [],
+        [],
+        [],
+        null,
+        null
+    );
+}
+
 /**
  * @return FileInfo[]
  */
@@ -2721,7 +2746,7 @@ class ClassInfo {
         $classSynopsis->appendChild($classSynopsisInfo);
 
         foreach ($this->extends as $k => $parent) {
-            $parentInfo = $classMap[$parent->toString()] ?? null;
+            $parentInfo = $classMap[$parent->toString()] ?? getClassInfoFromReflection($parent->toString());
             if ($parentInfo === null) {
                 throw new Exception("Missing parent class " . $parent->toString());
             }
@@ -2743,7 +2768,7 @@ class ClassInfo {
         }
 
         foreach ($this->implements as $interface) {
-            $interfaceInfo = $classMap[$interface->toString()] ?? null;
+            $interfaceInfo = $classMap[$interface->toString()] ?? getClassInfoFromReflection($interface->toString());
             if (!$interfaceInfo) {
                 throw new Exception("Missing implemented interface " . $interface->toString());
             }
@@ -2932,7 +2957,7 @@ class ClassInfo {
         array $classMap
     ): void {
         foreach ($this->extends as $parent) {
-            $parentInfo = $classMap[$parent->toString()] ?? null;
+            $parentInfo = $classMap[$parent->toString()] ?? getClassInfoFromReflection($parent->toString());
             if (!$parentInfo) {
                 throw new Exception("Missing parent class " . $parent->toString());
             }
@@ -2958,7 +2983,7 @@ class ClassInfo {
         }
 
         foreach ($this->implements as $parent) {
-            $parentInfo = $classMap[$parent->toString()] ?? null;
+            $parentInfo = $classMap[$parent->toString()] ?? getClassInfoFromReflection($parent->toString());
             if (!$parentInfo) {
                 throw new Exception("Missing parent interface " . $parent->toString());
             }
