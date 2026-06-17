@@ -1284,6 +1284,12 @@ void zend_update_parent_ce(zend_class_entry *ce)
 			ce->__debugInfo = tmp;
 		}
 	}
+	if (ce->compareto) {
+		zend_function *tmp = zend_shared_alloc_get_xlat_entry(ce->compareto);
+		if (tmp != NULL) {
+			ce->compareto = tmp;
+		}
+	}
 }
 
 #ifdef HAVE_JIT

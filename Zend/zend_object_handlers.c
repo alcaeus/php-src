@@ -29,9 +29,11 @@
 #include "zend_exceptions.h"
 #include "zend_closures.h"
 #include "zend_compile.h"
+#include "zend_enum.h"
 #include "zend_hash.h"
 #include "zend_property_hooks.h"
 #include "zend_observer.h"
+#include "zend_comparable.h"
 
 #define DEBUG_OBJECT_HANDLERS 0
 
@@ -2222,6 +2224,30 @@ ZEND_API zend_function *zend_std_get_constructor(zend_object *zobj) /* {{{ */
 }
 /* }}} */
 
+static zend_enum_CompareResult zend_call_compare_method(zend_object *object, zval *other)
+{
+	zval retval;
+	zend_enum_CompareResult result = ZEND_ENUM_CompareResult_Uncomparable;
+
+	zend_call_known_instance_method_with_1_params(object->ce->compareto, object, &retval, other);
+
+	// An undef return value indicates the compare function didn't complete successfully
+	if (Z_TYPE(retval) == IS_UNDEF) {
+		goto done;
+	}
+
+	if (Z_TYPE(retval) == IS_LONG) {
+		result = compareresult_from_int(Z_LVAL(retval));
+	} else {
+		ZEND_ASSERT(Z_TYPE(retval) == IS_OBJECT);
+		result = zend_enum_fetch_case_id(Z_OBJ(retval));
+	}
+
+done:
+	zval_ptr_dtor(&retval);
+	return result;
+}
+
 ZEND_API int zend_std_compare_objects(zval *o1, zval *o2) /* {{{ */
 {
 	zend_object *zobj1, *zobj2;
@@ -2229,6 +2255,22 @@ ZEND_API int zend_std_compare_objects(zval *o1, zval *o2) /* {{{ */
 	if (zend_objects_check_stack_limit()) {
 		zend_throw_error(NULL, "Maximum call stack size reached during object comparison");
 		return ZEND_UNCOMPARABLE;
+	}
+
+	if (Z_TYPE_P(o1) == IS_OBJECT && Z_OBJCE_P(o1)->compareto) {
+		zend_enum_CompareResult result = zend_call_compare_method(Z_OBJ_P(o1), o2);
+
+		if (result != ZEND_ENUM_CompareResult_Uncomparable) {
+			return compareresult_to_int(result);
+		}
+	}
+
+	if (Z_TYPE_P(o2) == IS_OBJECT && Z_OBJCE_P(o2)->compareto) {
+		zend_enum_CompareResult result = zend_call_compare_method(Z_OBJ_P(o2), o1);
+
+		if (result != ZEND_ENUM_CompareResult_Uncomparable) {
+			return -compareresult_to_int(result);
+		}
 	}
 
 	if (Z_TYPE_P(o1) != Z_TYPE_P(o2)) {

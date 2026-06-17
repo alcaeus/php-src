@@ -185,6 +185,9 @@ static void do_inherit_parent_constructor(zend_class_entry *ce) /* {{{ */
 	if (EXPECTED(!ce->__debugInfo)) {
 		ce->__debugInfo = parent->__debugInfo;
 	}
+	if (EXPECTED(!ce->compareto)) {
+		ce->compareto = parent->compareto;
+	}
 
 	if (ce->constructor) {
 		if (parent->constructor && UNEXPECTED(parent->constructor->common.fn_flags & ZEND_ACC_FINAL)) {
@@ -3395,6 +3398,7 @@ static zend_class_entry *zend_lazy_class_load(const zend_class_entry *pce)
 			zend_update_inherited_handler(__debugInfo);
 			zend_update_inherited_handler(__serialize);
 			zend_update_inherited_handler(__unserialize);
+			zend_update_inherited_handler(compareto);
 		}
 	}
 
