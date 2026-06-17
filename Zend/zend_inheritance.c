@@ -173,6 +173,9 @@ static void do_inherit_parent_constructor(zend_class_entry *ce) /* {{{ */
 	if (EXPECTED(!ce->__unserialize)) {
 		ce->__unserialize = parent->__unserialize;
 	}
+	if (EXPECTED(!ce->__compare)) {
+		ce->__compare = parent->__compare;
+	}
 	if (EXPECTED(!ce->serialize)) {
 		ce->serialize = parent->serialize;
 	}

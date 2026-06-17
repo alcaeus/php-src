@@ -187,6 +187,7 @@ struct _zend_class_entry {
 	zend_function *__debugInfo;
 	zend_function *__serialize;
 	zend_function *__unserialize;
+	zend_function *__compare;
 
 	const zend_object_handlers *default_object_handlers;
 

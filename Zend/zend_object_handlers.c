@@ -2222,6 +2222,31 @@ ZEND_API zend_function *zend_std_get_constructor(zend_object *zobj) /* {{{ */
 }
 /* }}} */
 
+static bool zend_call_compare_magic_method(zend_object *object, zval *other, int *ret)
+{
+	zval retval;
+	bool success = false;
+
+	zend_call_known_instance_method_with_1_params(object->ce->__compare, object, &retval, other);
+
+	// An undef return value indicates the compare function didn't complete successfully
+	if (Z_TYPE(retval) == IS_UNDEF) {
+		goto done;
+	}
+
+	if (Z_TYPE(retval) != IS_LONG) {
+		zend_throw_error(NULL, "Compare method for object of class %s returned type %s, int expected", ZSTR_VAL(object->ce->name), zend_get_type_by_const(Z_TYPE(retval)));
+		goto done;
+	}
+
+	success = true;
+	*ret = Z_LVAL(retval);
+
+done:
+	zval_ptr_dtor(&retval);
+	return success;
+}
+
 ZEND_API int zend_std_compare_objects(zval *o1, zval *o2) /* {{{ */
 {
 	zend_object *zobj1, *zobj2;
@@ -2229,6 +2254,26 @@ ZEND_API int zend_std_compare_objects(zval *o1, zval *o2) /* {{{ */
 	if (zend_objects_check_stack_limit()) {
 		zend_throw_error(NULL, "Maximum call stack size reached during object comparison");
 		return ZEND_UNCOMPARABLE;
+	}
+
+	if (Z_TYPE_P(o1) == IS_OBJECT && Z_OBJCE_P(o1)->__compare) {
+		int ret;
+
+		if (!zend_call_compare_magic_method(Z_OBJ_P(o1), o2, &ret)) {
+			return ZEND_UNCOMPARABLE;
+		}
+
+		return ret;
+	}
+
+	if (Z_TYPE_P(o2) == IS_OBJECT && Z_OBJCE_P(o2)->__compare) {
+		int ret;
+
+		if (!zend_call_compare_magic_method(Z_OBJ_P(o2), o1, &ret)) {
+			return ZEND_UNCOMPARABLE;
+		}
+
+		return -ret;
 	}
 
 	if (Z_TYPE_P(o1) != Z_TYPE_P(o2)) {

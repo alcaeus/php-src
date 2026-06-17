@@ -102,6 +102,7 @@ static void zend_verify_enum_magic_methods(const zend_class_entry *ce)
 	ZEND_ENUM_DISALLOW_MAGIC_METHOD(__tostring, ZEND_TOSTRING_FUNC_NAME);
 	ZEND_ENUM_DISALLOW_MAGIC_METHOD(__serialize, ZEND_SERIALIZE_FUNC_NAME);
 	ZEND_ENUM_DISALLOW_MAGIC_METHOD(__unserialize, ZEND_UNSERIALIZE_FUNC_NAME);
+	ZEND_ENUM_DISALLOW_MAGIC_METHOD(__compare, ZEND_COMPARE_FUNC_NAME);
 
 	static const char *const forbidden_methods[] = {
 		ZEND_SLEEP_FUNC_NAME,

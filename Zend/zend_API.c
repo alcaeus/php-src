@@ -2866,6 +2866,11 @@ ZEND_API void zend_check_magic_method_implementation(const zend_class_entry *ce,
 		zend_check_magic_method_non_static(ce, fptr, error_type);
 		zend_check_magic_method_public(ce, fptr);
 		zend_check_magic_method_return_type(ce, fptr, error_type, MAY_BE_VOID);
+	} else if (zend_string_equals_literal(lcname, ZEND_COMPARE_FUNC_NAME)) {
+		zend_check_magic_method_args(1, ce, fptr, error_type);
+		zend_check_magic_method_non_static(ce, fptr, error_type);
+		zend_check_magic_method_public(ce, fptr);
+		zend_check_magic_method_return_type(ce, fptr, error_type, MAY_BE_LONG);
 	}
 }
 /* }}} */
@@ -2906,6 +2911,8 @@ ZEND_API void zend_add_magic_method(zend_class_entry *ce, zend_function *fptr, c
 		ce->__serialize = fptr;
 	} else if (zend_string_equals_literal(lcname, ZEND_UNSERIALIZE_FUNC_NAME)) {
 		ce->__unserialize = fptr;
+	} else if (zend_string_equals_literal(lcname, ZEND_COMPARE_FUNC_NAME)) {
+		ce->__compare = fptr;
 	}
 }
 

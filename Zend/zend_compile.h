@@ -1261,6 +1261,7 @@ END_EXTERN_C()
 #define ZEND_SERIALIZE_FUNC_NAME    "__serialize"
 #define ZEND_UNSERIALIZE_FUNC_NAME  "__unserialize"
 #define ZEND_SET_STATE_FUNC_NAME    "__set_state"
+#define ZEND_COMPARE_FUNC_NAME      "__compare"
 
 /* The following constants may be combined in CG(compiler_options)
  * to change the default compiler behavior */
